@@ -1,0 +1,87 @@
+---
+title: "Blast"
+output: html_document
+date: "2024-01-16"
+---
+
+
+This notebook is for using blast to annotate unknown sequences
+
+
+```{bash}
+/home/shared/ncbi-blast-2.15.0+/bin/blastx -h
+```
+
+# Make a protein database 
+
+
+```{bash}
+cd ../data
+
+curl -O https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+
+mv uniprot_sprot.fasta.gz uniprot_sprot_r2023_05.fasta.gz
+
+gunzip -k uniprot_sprot_r2023_05.fasta.gz
+
+```
+
+
+```{bash}
+ls ../data
+
+```
+
+
+```{bash}
+head ../data/*fasta
+```
+
+
+
+```{bash}
+/home/shared/ncbi-blast-2.15.0+/bin/makeblastdb \
+-in ../data/uniprot_sprot_r2023_05.fasta \
+-dbtype prot \
+-out ../output/uniprot_sprot_r2023_05
+```
+
+
+
+
+# grab unknown fasta
+
+```{bash}
+curl https://eagle.fish.washington.edu/cnidarian/Ab_4denovo_CLC6_a.fa \
+-k \
+> ../data/Ab_4denovo_CLC6_a.fa
+```
+
+
+```{bash}
+head ../data/Ab_4denovo_CLC6_a.fa
+echo "How many sequences are there?"
+grep -c ">" ../data/Ab_4denovo_CLC6_a.fa
+```
+
+
+
+# Run blast
+
+
+```{bash}
+/home/shared/ncbi-blast-2.15.0+/bin/blastx \
+-query ../data/Ab_4denovo_CLC6_a.fa \
+-db ../output/uniprot_sprot_r2023_05 \
+-out ../output/Ab_4-uniprot_blastx.tab \
+-evalue 1E-20 \
+-num_threads 2 \
+-max_target_seqs 1 \
+-outfmt 6
+```
+
+
+
+
+
+
